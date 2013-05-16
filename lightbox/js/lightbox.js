@@ -1,18 +1,12 @@
-// problem area: navigation touch events (lines 151 - end)
-
-// PROBLEM #1: on('touch') event (line 153), which allows users to proceed
-// to the next image by tapping the current one, only loops through
-// the image set once.
-
-// PROBLEM #2: on('swipeleft') on('swiperight') events (commented out on lines 180 - 210),
+// PROBLEM: on('swipeleft') on('swiperight') events (commented out on lines 178 - 208),
 // are intended to mimick the functionality of left & right arrow keys, 
 // don't seem to be responding at all.
 
 $(document).ready(function(){
-  /*$('body').bind('touchmove', function (e) { 
-    e.preventDefault();
-  });*/
+  // disable rubberbanding
+  $('body').on('touchmove', function(e) { e.preventDefault(); });
 
+  // define global varials & functions
   var current, size
 
   function addLightbox() {
@@ -42,9 +36,15 @@ $(document).ready(function(){
           )
         })
 
-        var lightboxImg = $('.lightboxImg');
+        //freeze body scroll
+        $('body').css('overflow','hidden')
 
       } 
+
+  function rmLightbox() {
+    $('#lightbox').fadeOut(300)
+    $('body').css('overflow','scroll')
+  }
   
   $('.trigger').click(function(e) {
     
@@ -59,13 +59,16 @@ $(document).ready(function(){
     
     // find out if #lightbox exists
     if ($('#lightbox').length > 0) {        
-      // #lightbox exists
-      $('#lightbox').fadeIn(300)
-      // #lightbox does not exist - create and insert (runs 1st time only)
 
+      // if #lightbox exists, fade in, freeze body scroll
+      $('body').css('overflow','hidden')
+      $('#lightbox').fadeIn(300)
+  
     } else {                                
-      // create HTML markup for lightbox window
+  
+      // create markup, insert into body
       addLightbox()
+  
     }
     
     // setting size based on number of objects in slideshow
@@ -77,12 +80,32 @@ $(document).ready(function(){
     
     // set current to selected slide
     current = slideNum
-  });
+  })
   
   //Click anywhere on the page to get rid of lightbox window
   $('body').on('click', '#lightbox', function() { 
-    $('#lightbox').fadeOut(300)
-  });
+    rmLightbox()
+  })
+
+  //For touch interfaces, tap anywhere on the page to get rid of lightbox window
+  $('body').hammer().on('touch', '#lightbox', function() {
+    rmLightbox()
+  })
+
+  //For touch interfaces, swipe down or swipe up to close lightbox as well
+  $('body').hammer().on('swipedown', '#lightbox', function(e) {
+      e.preventDefault
+      e.stopPropagation()
+      $('#lightbox').hide()
+      $('body').css('overflow','scroll')
+  })
+
+  $('body').hammer().on('swipeup', '#lightbox', function(e) {
+      e.preventDefault
+      e.stopPropagation()
+      $('#lightbox').slideUp()
+      $('body').css('overflow','scroll')
+  })
 
   /* =====================================
       NAVIGATION
@@ -156,17 +179,21 @@ $(document).ready(function(){
     return false
   })
 
-  // touch events
+  // touch navigation
 
-  $('body').hammer().on('touch', '.lightboxImg', function(){
-    console.log('hammer time!')
+  $('body').hammer().on('touch', '.lightboxImg', function(e){
+
+    // prevent default click event, and prevent event bubbling to prevent 
+    // 'touch' and 'click' event from being read simultaneously
+    e.preventDefault()
+    e.stopPropagation()
 
     var dest
 
     dest = current + 1
-    if (dest < 0) {
-        dest = size - 1
-    }
+      if (dest > size - 1) {
+        dest = 0
+      }
 
     if (dest || dest === 0) {
 
@@ -177,12 +204,20 @@ $(document).ready(function(){
     current = dest
   })
 
-  /*$('body').hammer().on('swiperight', '.lightboxImg', function(){
+  // PROBLEM AREA - the swipeleft and swiperight events are working 
+  // inefficiently, swiping through two images as opposed to one.
+  // I think this is a result of the browser reading a swipe and a touch
+  // simultaneously, but e.preventDefault() doesn't seem to solve this.
+
+  $('body').hammer().on('swiperight', '.lightboxImg', function(e){
+      e.preventDefault()
+      e.stopPropagation()
+
       var dest
 
       dest = current + 1
-      if (dest < 0) {
-        dest = size - 1
+      if (dest > size - 1) {
+        dest = 0
       }
 
       if (dest || dest === 0) {
@@ -194,7 +229,10 @@ $(document).ready(function(){
     current = dest
   })
 
-  $('body').hammer().on('swipeleft', '.lightboxImg', function(){
+  $('body').hammer().on('swipeleft', '.lightboxImg', function(e){
+      e.preventDefault()
+      e.stopPropagation()
+
       var dest
 
       dest = current - 1
@@ -204,9 +242,9 @@ $(document).ready(function(){
 
       if (dest || dest === 0) {
 
-       $('#slideshow ul > li:eq(' + current + ')').hide()
-       $('#slideshow ul > li:eq(' + dest + ')').show()
+      $('#slideshow ul > li:eq(' + current + ')').hide()
+      $('#slideshow ul > li:eq(' + dest + ')').show()
     }
-  })*/
+  })
 
 })

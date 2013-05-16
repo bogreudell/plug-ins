@@ -27,18 +27,18 @@ h1 {
 }
 
 #thumbnails {
-	margin:0px auto;
+	margin:0px auto 20px;
 	width:960px;
 }
 
 #thumbnails li {
 	display:inline;
-	margin:5px;
 	width:300px;
 	height:300px;
 }
 
 #thumbnails a, #thumbnails img {
+	margin:1px;
 	width:inherit;
 	height:auto;
 	opacity:.95;
@@ -69,7 +69,7 @@ h1 {
 #lightbox img {
 	position:absolute;
 	left:50%;
-	margin:15px 0px 0px -306px;
+	margin:0px 0px 0px -306px;
 	border-radius:5px;
 	-webkit-border-radius:5px;
 	-moz-border-radius:5px;
@@ -92,8 +92,29 @@ h1 {
 	right:20px;
 }
 
-@media only screen and (max-width:767px) {
+@media only screen and (max-device-width:767px) {
 	
+	#thumbnails {
+		width:100%;
+	}
+
+	#thumbnails li {
+		width:95%;
+		height:auto;
+	}
+
+	#thumbnails img {
+		margin:0px auto 10px;
+	}
+
+	#lightbox img { 
+		position:relative;
+		left:0;
+		margin:15px auto 0px;
+		width:90%;
+		height:auto;
+	}
+
 	.prev, .next { 
 		display:none;
 	}
